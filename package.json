@@ -1,0 +1,16 @@
+{
+  "name": "hcl-interview-app-backend",
+  "version": "1.0.0",
+  "description": "Backend for HCL interview project",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "Juan Alberto Guerrero",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.16.4",
+    "mongodb": "^3.1.13"
+  }
+}
