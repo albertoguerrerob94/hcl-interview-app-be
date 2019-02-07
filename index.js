@@ -12,8 +12,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // mongodb config
-const url = "mongodb://localhost:27017";
-const dbName = "hcl-interview";
+const url = "mongodb://hcl:hcl2019@ds127015.mlab.com:27015/heroku_fhmkzds2";
+const dbName = "heroku_fhmkzds2";
 const client = new MongoClient(url, { useNewUrlParser: true });
 
 
@@ -54,7 +54,7 @@ client.connect(err => {
   app.get("/events", (req, res) => {
     select(db, "events", {}, (err, docs) => {
       if(err) {
-        res.status(500).send();
+        res.status(500).send(err);
       } else {
         res.status(200).send(docs);
       }
@@ -68,7 +68,7 @@ client.connect(err => {
       comments: []
     }, err => {
       if(err) {
-        res.status(500).send();
+        res.status(500).send(err);
       } else {
         console.log("inserted event");
         res.status(201).send();
@@ -79,7 +79,7 @@ client.connect(err => {
   app.get("/events/:id", (req, res) => {
     selectOne(db, "events", { _id: ObjectId(req.params.id) }, (err, event) => {
       if(err) {
-        res.status(500).send();
+        res.status(500).send(err);
       } else {
         console.log("fetched event");
         res.status(200).send(event);
@@ -93,8 +93,7 @@ client.connect(err => {
     { $set: req.body },
     err => {
       if(err) {
-        console.log("err", err);
-        res.status(500).send();
+        res.status(500).send(err);
       } else {
         res.status(204).send();
       }
@@ -104,7 +103,7 @@ client.connect(err => {
   app.delete("/events/:id", (req, res) => {
     remove(db, "events", { _id: ObjectId(req.params.id) }, err => {
       if(err) {
-        res.status(500).send();
+        res.status(500).send(err);
       } else {
         console.log("event removed");
         res.status(200).send();
@@ -117,12 +116,12 @@ client.connect(err => {
 
     selectOne(db, "events", query, (err, event) => {
       if(err) {
-        res.status(500).send();
+        res.status(500).send(err);
       } else {
         const comments = event.comments.concat(req.body);
         update(db, "events", query, { $set: { comments } }, err2 => {
           if(err2) {
-            res.status(500).send();
+            res.status(500).send(err2);
           } else {
             res.status(204).send();
           }
@@ -138,7 +137,7 @@ client.connect(err => {
 
     selectOne(db, "events", query, (err, event) => {
       if(err) {
-        res.status(500).send();
+        res.status(500).send(err);
       } else {
         selectOne(db, "users", userQuery, (err2, user) => {
           const { firstName: name, location } = user;
@@ -149,7 +148,7 @@ client.connect(err => {
 
           update(db, "events", query, { $set: { people } }, err3 => {
             if(err3) {
-              res.status(500).send();
+              res.status(500).send(err3);
             } else {
               res.status(204).send();
             }
@@ -166,7 +165,7 @@ client.connect(err => {
 
     selectOne(db, "events", query, (err, event) => {
       if(err) {
-        res.status(500).send();
+        res.status(500).send(err);
       } else {
         selectOne(db, "users", userQuery, (err2, user) => {
           const people = event.people.filter(person => person.id !== userid);
@@ -185,7 +184,7 @@ client.connect(err => {
   app.post("/users", (req, res) => {
     insert(db, "users", req.body, err => {
       if(err) {
-        res.status(500).send();
+        res.status(500).send(err);
       } else {
         console.log("inserted user");
         res.status(201).send();
@@ -198,7 +197,7 @@ client.connect(err => {
 
     selectOne(db, "users", { $and: [ { email }, { password } ] }, (err, user) => {
       if(err) {
-        res.send(500).send();
+        res.send(500).send(err);
       } else if(user) {
         console.log("login successful");
         res.status(200).send({
@@ -212,7 +211,11 @@ client.connect(err => {
     });
   });
 
-  app.listen(8081, () => {
+  app.get('/', function(req, res) {
+    res.status(200).send('working!!');
+  });
+
+  app.listen(process.env.PORT, () => {
      console.log("Example app listening at port 8081");
   })
 });
